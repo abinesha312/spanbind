@@ -104,7 +104,7 @@ Sentence splitting (2 tests) & 2/2 \\
 
 \subsection{Built-in Demo Corpus}
 
-Demo corpus: 2 documents (427 chars total) covering support hours and refund policy. Two test answers: (1) \textit{Bound answer} (2 sentences): both bind successfully (scores $>0.55$); (2) \textit{Unbound answer} (2 sentences): one binds, but ``Customers receive a lifetime warranty'' is marked unbound (score 0.00), correctly detecting the fabricated warranty claim. Demo reports: \texttt{2 bound, 0 unbound} vs. \texttt{1 bound, 1 unbound}.
+Demo corpus: 2 documents (425 chars total) covering support hours and refund policy. Two test answers: (1) \textit{Bound answer} (2 sentences): both bind successfully (scores $>0.55$); (2) \textit{Unbound answer} (2 sentences): one binds, but ``Customers receive a lifetime warranty'' is marked unbound (score 0.00), correctly detecting the fabricated warranty claim. Demo reports: \texttt{2 bound, 0 unbound} vs. \texttt{1 bound, 1 unbound}.
 
 \subsection{Keyword-Based Fake Generator Test}
 
@@ -113,7 +113,7 @@ A non-LLM generator (\texttt{fake\_generate}) copies sentences sharing keywords 
 \subsection{Limitations of Current Evaluation}
 
 \begin{itemize}
-\item \textbf{Corpus size}: The demo uses 2 documents totaling 427 characters. This is sufficient only for demonstrating the tool's basic functionality.
+\item \textbf{Corpus size}: The demo uses 2 documents totaling 425 characters. This is sufficient only for demonstrating the tool's basic functionality.
 \item \textbf{No accuracy benchmark}: We do not measure precision, recall, or F1 against labeled data. The heuristic overlap threshold (0.55) is not empirically validated.
 \item \textbf{No external users}: The tool has 0 GitHub stars and no known production deployments as of August 24, 2026.
 \item \textbf{Paraphrase detection}: The token-overlap heuristic fails on heavy paraphrases (e.g., ``Paris'' vs. ``the City of Light'').
@@ -137,7 +137,7 @@ Install: \texttt{pip install git+https://github.com/abinesha312/spanbind.git}. D
 
 \section{Limitations and Future Work}
 
-\textbf{Current limitations:} The heuristic binder is not validated on attribution datasets; no precision/recall evaluation; threshold (0.55) is arbitrary; toy corpus (2 docs, 427 chars); cannot handle paraphrases or multi-hop reasoning.
+\textbf{Current limitations:} The heuristic binder is not validated on attribution datasets; no precision/recall evaluation; threshold (0.55) is arbitrary; toy corpus (2 docs, 425 chars); cannot handle paraphrases or multi-hop reasoning.
 
 \textbf{Future work:} Integration with published attribution models; benchmark evaluation (ASQA, AttributedQA); learned threshold tuning; multi-span support; improved number/entity handling.
 
@@ -145,7 +145,7 @@ Install: \texttt{pip install git+https://github.com/abinesha312/spanbind.git}. D
 
 \section{Conclusion}
 
-\texttt{spanbind} provides a minimal, zero-dependency tool for detecting ungrounded claims in LLM outputs during continuous integration. The tool successfully binds sentences to source spans on a toy corpus and provides pytest integration for test-driven development of RAG systems. While the current implementation is limited to heuristic overlap matching on small examples, it demonstrates a practical approach to lightweight grounding verification in CI workflows.
+\texttt{spanbind} provides a minimal, zero-dependency tool for detecting ungrounded claims in LLM outputs during continuous integration. The tool successfully binds sentences to source spans on a toy corpus (425 chars) and provides pytest integration for test-driven development of RAG systems. While the current implementation is limited to heuristic overlap matching on small examples, it demonstrates a practical approach to lightweight grounding verification in CI workflows.
 
 The tool is released under the MIT license and is available at \url{https://github.com/abinesha312/spanbind}. All results in this paper are reproducible by running the repository's test suite and demo command.
 

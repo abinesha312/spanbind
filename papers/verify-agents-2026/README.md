@@ -73,7 +73,7 @@ cd examples/starter && python3 demo.py  # 8-sentence example
 ## Key Stats (Reproducible)
 
 - **Test suite:** 23/23 tests pass (100%)
-- **Demo corpus:** 2 documents (427 total chars)
+- **Demo corpus:** 2 documents (425 total chars)
 - **Bound answer:** 2/2 sentences successfully bound
 - **Unbound answer:** 1/2 bound, 1/2 unbound (warranty hallucination detected)
 - **Fake generator:** 8/8 sentences bound (copy-paste style)
