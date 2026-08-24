@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
+from importlib.resources import files
 from pathlib import Path
 from typing import Any
 
@@ -59,6 +60,74 @@ def _result_row(item: BoundClaim | UnboundClaim) -> dict[str, Any]:
     return item.to_dict()
 
 
+def _print_results(
+    results: list[BoundClaim | UnboundClaim],
+    *,
+    as_json: bool,
+    answer: str,
+    label: str | None = None,
+) -> list[UnboundClaim]:
+    unbound = [r for r in results if isinstance(r, UnboundClaim)]
+    if as_json:
+        payload: dict[str, Any] = {
+            "answer_sha256": sha256_text(answer),
+            "bindings": [_result_row(r) for r in results],
+            "unbound": len(unbound),
+        }
+        if label is not None:
+            payload["example"] = label
+        print(json.dumps(payload, indent=2))
+        return unbound
+    if label:
+        print(f"=== {label} ===")
+    for item in results:
+        if isinstance(item, BoundClaim):
+            s = item.span
+            print(
+                f"BOUND  {s.doc_id}:{s.start}-{s.end}  sha256={s.sha256[:12]}…  {item.sentence}"
+            )
+        else:
+            print(f"UNBOUND ({item.best_score:.2f}) {item.sentence}  [{item.reason}]")
+    print(f"{len(results) - len(unbound)} bound, {len(unbound)} unbound")
+    return unbound
+
+
+def _demo_corpus() -> tuple[str, str, list[dict[str, str]]]:
+    root = files("spanbind").joinpath("data")
+    bound = root.joinpath("answer_bound.txt").read_text(encoding="utf-8")
+    unbound = root.joinpath("answer_unbound.txt").read_text(encoding="utf-8")
+    sources: list[dict[str, str]] = []
+    src_dir = root.joinpath("sources")
+    for name in ("hours.txt", "policy.txt"):
+        path = src_dir.joinpath(name)
+        sources.append({"id": name, "text": path.read_text(encoding="utf-8")})
+    return bound, unbound, sources
+
+
+def _run_demo(*, as_json: bool) -> int:
+    bound_answer, unbound_answer, sources = _demo_corpus()
+    bound_results = bind(bound_answer, sources)
+    unbound_results = bind(unbound_answer, sources)
+    bound_unbound = _print_results(
+        bound_results, as_json=as_json, answer=bound_answer, label="bound"
+    )
+    unbound_unbound = _print_results(
+        unbound_results, as_json=as_json, answer=unbound_answer, label="unbound"
+    )
+    ok = (not bound_unbound) and bool(unbound_unbound)
+    if not as_json:
+        if ok:
+            print(
+                "demo ok: bound example fully bound; unbound example has unbound claims"
+            )
+        else:
+            print(
+                "demo failed: expected the bound example to bind and the unbound example to unbind",
+                file=sys.stderr,
+            )
+    return 0 if ok else 1
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="spanbind",
@@ -86,11 +155,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="heuristic is local; llm requires SPANBIND_LLM_API_KEY",
     )
     check.add_argument("--json", action="store_true", help="print machine-readable bindings")
+    demo = sub.add_parser(
+        "demo",
+        help="run built-in bound and unbound examples (package data); exit 0 if both behave",
+    )
+    demo.add_argument("--json", action="store_true", help="print machine-readable bindings")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
+    if args.cmd == "demo":
+        return _run_demo(as_json=args.json)
     if args.cmd != "check":
         return 2
     answer_path: Path = args.answer
@@ -103,28 +179,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.min_overlap is not None:
         kwargs["min_overlap"] = args.min_overlap
     results = bind(answer, sources, **kwargs)
-    unbound = [r for r in results if isinstance(r, UnboundClaim)]
-    if args.json:
-        print(
-            json.dumps(
-                {
-                    "answer_sha256": sha256_text(answer),
-                    "bindings": [_result_row(r) for r in results],
-                    "unbound": len(unbound),
-                },
-                indent=2,
-            )
-        )
-    else:
-        for item in results:
-            if isinstance(item, BoundClaim):
-                s = item.span
-                print(
-                    f"BOUND  {s.doc_id}:{s.start}-{s.end}  sha256={s.sha256[:12]}…  {item.sentence}"
-                )
-            else:
-                print(f"UNBOUND ({item.best_score:.2f}) {item.sentence}  [{item.reason}]")
-        print(f"{len(results) - len(unbound)} bound, {len(unbound)} unbound")
+    unbound = _print_results(results, as_json=args.json, answer=answer)
     return 1 if unbound else 0
 
 

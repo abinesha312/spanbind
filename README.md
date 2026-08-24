@@ -14,7 +14,17 @@ Unbound sentences come back as `UnboundClaim` and fail `assert_bound` / `spanbin
 
 This is an original, local tool. The default binder is a **sentence-split + token-overlap heuristic**. It is **not** a published attribution method, not a substitute for human review, and not an evaluation of any model vendor.
 
-## Install
+## Install from GitHub
+
+```bash
+pip install "git+https://github.com/abinesha312/spanbind.git"
+```
+
+One-command demo (built-in bound + unbound answers shipped as package data; exit `0` if the bound example binds and the unbound example does not):
+
+```bash
+spanbind demo
+```
 
 From a clone of this repository:
 
@@ -76,7 +86,7 @@ spanbind check --answer path/to/answer.txt --source path/to/sources_dir
 
 ## Example
 
-See `examples/starter/` for a tiny retrieve-then-generate stand-in (no model) and tests that use the plugin.
+See `examples/starter/` (also shipped under `spanbind/data/` so a GitHub pip install still has the tiny texts) for a retrieve-then-generate stand-in (no model) and tests that use the plugin.
 
 ```bash
 python -m pip install -e ".[dev]"
@@ -90,6 +100,7 @@ From the repo root:
 ```bash
 pytest
 spanbind check --answer examples/starter/answer_ok.txt --source examples/starter/sources
+spanbind demo
 ```
 
 ## How to fork
@@ -106,7 +117,7 @@ spanbind check --answer examples/starter/answer_ok.txt --source examples/starter
 - Sentence splitting is punctuation-based. Headings, bullets, and missing periods collapse oddly.
 - `sha256` is of the **document**, not of the excerpt alone. Offsets still need the same bytes.
 - The optional LLM binder trusts the model for offsets, then only checks they fall inside the named document. That is still not evidence the claim is true.
-- There are **no** published accuracy numbers here, **no** named production users, and **no** immigration or “extraordinary ability” claims attached to this repo.
+- There are **no** published accuracy numbers here.
 
 ## Related work (not implemented)
 

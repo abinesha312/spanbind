@@ -1,0 +1,3 @@
+Refunds are available within 30 days of purchase if the software has not been activated.
+Activated licenses are not refundable. Support email is help@example.test.
+The service status page is status.example.test. Paid plans include email support on business days.
