@@ -1,0 +1,2 @@
+The support desk is staffed Monday through Friday, 09:00 to 17:00 America/Chicago.
+There is no weekend desk. Emergency outages are posted on status.example.test.
